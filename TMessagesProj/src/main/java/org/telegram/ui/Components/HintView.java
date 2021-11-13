@@ -31,6 +31,7 @@ public class HintView extends FrameLayout {
 
     public static final int TYPE_SEARCH_AS_LIST = 3;
     public static final int TYPE_POLL_VOTE = 5;
+    public static final int TYPE_DISABLED_BUTTON = 10;
 
     private TextView textView;
     private ImageView imageView;
@@ -73,7 +74,7 @@ public class HintView extends FrameLayout {
         textView.setTextColor(getThemedColor(Theme.key_chat_gifSaveHintText));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
         textView.setMaxLines(2);
-        if (type == 7 || type == 8 || type == 9) {
+        if (type == 7 || type == 8 || type == 9 || type == TYPE_DISABLED_BUTTON) {
             textView.setMaxWidth(AndroidUtilities.dp(310));
         } else if (type == 4) {
             textView.setMaxWidth(AndroidUtilities.dp(280));
@@ -88,7 +89,7 @@ public class HintView extends FrameLayout {
         } else {
             textView.setGravity(Gravity.LEFT | Gravity.TOP);
             textView.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(currentType == 7 || currentType == 8 || currentType == 9 ? 6 : 3), getThemedColor(Theme.key_chat_gifSaveHintBackground)));
-            if (currentType == TYPE_POLL_VOTE || currentType == 4) {
+            if (currentType == TYPE_POLL_VOTE || currentType == TYPE_DISABLED_BUTTON || currentType == 4) {
                 textView.setPadding(AndroidUtilities.dp(9), AndroidUtilities.dp(6), AndroidUtilities.dp(9), AndroidUtilities.dp(7));
             } else if (currentType == 2) {
                 textView.setPadding(AndroidUtilities.dp(7), AndroidUtilities.dp(6), AndroidUtilities.dp(7), AndroidUtilities.dp(7));
@@ -146,7 +147,7 @@ public class HintView extends FrameLayout {
     }
 
     public boolean showForMessageCell(ChatMessageCell cell, Object object, int x, int y, boolean animated) {
-        if (currentType == TYPE_POLL_VOTE && y == shownY && messageCell == cell || currentType != TYPE_POLL_VOTE && (currentType == 0 && getTag() != null || messageCell == cell)) {
+        if (currentType == TYPE_POLL_VOTE && y == shownY && messageCell == cell || currentType != TYPE_POLL_VOTE && (currentType == 0 && getTag() != null || messageCell == cell) || currentType == TYPE_DISABLED_BUTTON) {
             return false;
         }
         if (hideRunnable != null) {

@@ -1453,6 +1453,8 @@
     <string name="CopyLink">Copy Link</string>
     <string name="ShareLink">Share Link</string>
     <string name="LinkInfo">Anyone who has Telegram installed will be able to join your group by following this link.</string>
+    <string name="RestrictedChannelForwardsHelp">Forwards from this channel\nare restricted.</string>
+    <string name="RestrictedGroupForwardsHelp">Forwards from this group\nare restricted.</string>
     <string name="SearchForPeople">Search for people...</string>
     <string name="SearchForPeopleAndGroups">Search for users and groups...</string>
     <string name="GigagroupConvertTitle">Broadcast Groups</string>

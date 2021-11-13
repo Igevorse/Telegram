@@ -386,6 +386,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
     public ImageView photoVideoOptionsItem;
     private ActionBarMenuItem forwardItem;
     private ActionBarMenuItem gotoItem;
+    private HintView noForwardsHintView;
     private int searchItemState;
     private Drawable pinnedHeaderShadowDrawable;
     private boolean ignoreSearchCollapse;
@@ -1055,6 +1056,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
     private final static int forward = 100;
     private final static int delete = 101;
     private final static int gotochat = 102;
+    private final static int forward_disabled = 103;
 
     private BaseFragment profileActivity;
 
@@ -1429,9 +1431,14 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
             forwardItem.setIcon(R.drawable.msg_forward);
             forwardItem.setContentDescription(LocaleController.getString("Forward", R.string.Forward));
             forwardItem.setDuplicateParentStateEnabled(false);
+            TLRPC.Chat currentChat = delegate.getCurrentChat();
+            boolean isNoForwardsEnabled = currentChat != null && currentChat.noforwards;
+            final int forward_click_id = isNoForwardsEnabled ? forward_disabled : forward;
+            forwardItem.setAlpha(isNoForwardsEnabled ? 0.5f : 1.0f);
+
             actionModeLayout.addView(forwardItem, new LinearLayout.LayoutParams(AndroidUtilities.dp(54), ViewGroup.LayoutParams.MATCH_PARENT));
             actionModeViews.add(forwardItem);
-            forwardItem.setOnClickListener(v -> onActionBarItemClick(forward));
+            forwardItem.setOnClickListener(v -> onActionBarItemClick(forward_click_id));
         }
         deleteItem = new ActionBarMenuItem(context, null, Theme.getColor(Theme.key_actionBarActionModeDefaultSelector), Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2), false);
         deleteItem.setIcon(R.drawable.msg_delete);
@@ -3109,6 +3116,18 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
             args.putInt("message_id", messageObject.getId());
             args.putBoolean("need_remove_previous_same_chat_activity", false);
             profileActivity.presentFragment(new ChatActivity(args), false);
+        }
+        else if (id == forward_disabled) {
+            if (noForwardsHintView == null) {
+                noForwardsHintView = new HintView(getContext(), HintView.TYPE_DISABLED_BUTTON, false);
+                noForwardsHintView.setAlpha(0.0f);
+                noForwardsHintView.setVisibility(View.INVISIBLE);
+                TLRPC.Chat currentChat = delegate.getCurrentChat();
+                String noForwardsTooltipText = ChatObject.isChannelAndNotMegaGroup(currentChat) ? LocaleController.getString("RestrictedChannelForwardsHelp", R.string.RestrictedChannelForwardsHelp) : LocaleController.getString("RestrictedGroupForwardsHelp", R.string.RestrictedGroupForwardsHelp);
+                noForwardsHintView.setText(noForwardsTooltipText.replace('\n', ' ').replace(".", ""));
+                profileActivity.getLayoutContainer().addView(noForwardsHintView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 19, 0, 19, 0));
+            }
+            noForwardsHintView.showForView(forwardItem, true);
         }
     }
 
