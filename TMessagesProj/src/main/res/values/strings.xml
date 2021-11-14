@@ -589,8 +589,10 @@
     <string name="GroupSettingsTitle">Group Settings</string>
     <string name="ChannelSettingsTitle">Channel Settings</string>
     <string name="TypePrivate">Private</string>
+    <string name="TypePrivateRestricted">Private restricted</string>
     <string name="TypePublic">Public</string>
     <string name="TypePrivateGroup">Private</string>
+    <string name="TypePrivateRestrictedGroup">Private restricted</string>
     <string name="TypePublicGroup">Public</string>
     <string name="TypeLocationGroup">Link</string>
     <string name="TypeLocationGroupEdit">Tap to add a permanent link</string>
@@ -778,6 +780,8 @@
     <string name="EventLogToggledInvitesOff">un1 disabled group invites</string>
     <string name="EventLogToggledSignaturesOn">un1 enabled signatures</string>
     <string name="EventLogToggledSignaturesOff">un1 disabled signatures</string>
+    <string name="EventLogToggledSavingRestrictionsOn">un1 enabled content saving restrictions</string>
+    <string name="EventLogToggledSavingRestrictionsOff">un1 disabled content saving restrictions</string>
     <string name="EventLogRestrictedUntil">changed permissions for %1$s\n\nDuration: %2$s</string>
     <string name="EventLogDefaultPermissions">changed default permissions</string>
     <string name="EventLogRestrictedSendStickers">Send stickers &amp; GIFs</string>
@@ -1453,6 +1457,10 @@
     <string name="CopyLink">Copy Link</string>
     <string name="ShareLink">Share Link</string>
     <string name="LinkInfo">Anyone who has Telegram installed will be able to join your group by following this link.</string>
+    <string name="SavingContent">Saving content</string>
+    <string name="RestrictSavingContent">Restrict saving content</string>
+    <string name="SavingChannelContentHelp">Participants won\'t be able to forward messages from this channel or save media files.</string>
+    <string name="SavingChatContentHelp">Participants won\'t be able to forward messages from this chat or save media files.</string>
     <string name="RestrictedChannelForwardsHelp">Forwards from this channel\nare restricted.</string>
     <string name="RestrictedGroupForwardsHelp">Forwards from this group\nare restricted.</string>
     <string name="SearchForPeople">Search for people...</string>

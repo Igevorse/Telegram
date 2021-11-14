@@ -2921,6 +2921,7 @@ public class MessagesController extends BaseController implements NotificationCe
                     oldChat.photo = chat.photo;
                     oldChat.broadcast = chat.broadcast;
                     oldChat.verified = chat.verified;
+                    oldChat.noforwards = chat.noforwards;
                     oldChat.megagroup = chat.megagroup;
                     oldChat.call_not_empty = chat.call_not_empty;
                     oldChat.call_active = chat.call_active;
@@ -2997,6 +2998,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 chat.photo = oldChat.photo;
                 chat.broadcast = oldChat.broadcast;
                 chat.verified = oldChat.verified;
+                chat.noforwards = oldChat.noforwards;
                 chat.megagroup = oldChat.megagroup;
 
                 if (oldChat.default_banned_rights != null) {
@@ -9098,6 +9100,50 @@ public class MessagesController extends BaseController implements NotificationCe
             if (response != null) {
                 processUpdates((TLRPC.Updates) response, false);
                 AndroidUtilities.runOnUIThread(() -> getNotificationCenter().postNotificationName(NotificationCenter.updateInterfaces, UPDATE_MASK_CHAT));
+            }
+        }, ConnectionsManager.RequestFlagInvokeAfter);
+    }
+
+    public void toogleNoForwards(long chatId, boolean enabled, BaseFragment fragment) {
+        TLRPC.TL_messages_toggleNoForwards req = new TLRPC.TL_messages_toggleNoForwards();
+        req.peer = getInputPeer(-chatId);
+        req.enabled = enabled;
+
+        getConnectionsManager().sendRequest(req, (response, error) -> {
+            if (response != null) {
+                boolean noForwards = false;
+                TLRPC.TL_updates res = (TLRPC.TL_updates) response;
+                for (TLRPC.Chat chat : res.chats) {
+                    if (chat.id == chatId) {
+                        noForwards = chat.noforwards;
+                        break;
+                    }
+                }
+
+                TLRPC.Chat chat = getChat(chatId);
+                if (chat == null) {
+                    chat = getMessagesStorage().getChatSync(chatId);
+                }
+                if (chat != null) {
+                    chat.noforwards = noForwards;
+                    chat.flags = noForwards ? (chat.flags | 33554432) : (chat.flags & ~33554432);
+                    putChat(chat, true);
+                }
+            }
+            if (error != null) {
+                if (BuildVars.LOGS_ENABLED) {
+                    FileLog.d("Got error in  toogleNoForwards: " + error);
+                }
+                AndroidUtilities.runOnUIThread(() -> AlertsCreator.processError(currentAccount, error, fragment, req));
+            }
+            boolean isFloodWait = error != null && error.text.startsWith("FLOOD_WAIT");
+            if (error == null || !isFloodWait) {
+                AndroidUtilities.runOnUIThread(() -> {
+                    TLRPC.ChatFull chatFull = getMessagesController().getChatFull(chatId);
+                    if (chatFull != null) {
+                        getNotificationCenter().postNotificationName(NotificationCenter.chatInfoDidLoad, chatFull, 0, false, false);
+                    }
+                });
             }
         }, ConnectionsManager.RequestFlagInvokeAfter);
     }
