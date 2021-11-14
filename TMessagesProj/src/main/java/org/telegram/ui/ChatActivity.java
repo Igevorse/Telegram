@@ -20295,7 +20295,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 ActionBarPopupWindow.ActionBarPopupWindowLayout restrictedGroupOrChannelLayout = new ActionBarPopupWindow.ActionBarPopupWindowLayout(getParentActivity(), R.drawable.popup_fixed_alert, themeDelegate);
                 restrictedGroupOrChannelLayout.setMinimumWidth(AndroidUtilities.dp(200));
                 restrictedGroupOrChannelLayout.setBackgroundColor(getThemedColor(Theme.key_actionBarDefaultSubmenuBackground));
-                restrictedGroupOrChannelLayout.setBackground(shadowDrawable);
 
                 ActionBarMenuSubItem cell = new ActionBarMenuSubItem(getParentActivity(), false, false, themeDelegate);
                 cell.setItemHeight(56);
