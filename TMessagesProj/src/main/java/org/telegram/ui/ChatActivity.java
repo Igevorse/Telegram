@@ -299,6 +299,8 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     private FrameLayout bottomMessagesActionContainer;
     private TextView forwardButton;
     private TextView replyButton;
+    private HintView noForwardsHintViewTop;
+    private HintView noForwardsHintViewBottom;
     private FrameLayout emptyViewContainer;
     private ChatGreetingsView greetingsViewContainer;
     public SizeNotifierFrameLayout contentView;
@@ -823,6 +825,10 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     }
 
     ForwardingPreviewView forwardingPreviewView;
+
+    private boolean isNoForwardsEnabled() {
+        return currentChat != null && currentChat.noforwards;
+    }
 
     private class UnreadCounterTextView extends View {
 
@@ -1923,6 +1929,8 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         timerHintView = null;
         videoPlayerContainer = null;
         voiceHintTextView = null;
+        noForwardsHintViewTop = null;
+        noForwardsHintViewBottom = null;
         blurredView = null;
         dummyMessageCell = null;
         cantDeleteMessagesCount = 0;
@@ -2004,7 +2012,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     }
                     createDeleteMessagesAlert(null, null);
                 } else if (id == forward) {
-                    openForward();
+                    openForward(false);
                 } else if (id == save_to) {
                     ArrayList<MessageObject> messageObjects = new ArrayList<>();
                     for (int a = 1; a >= 0; a--) {
@@ -7656,7 +7664,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         image = context.getResources().getDrawable(R.drawable.input_forward).mutate();
         image.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_actionBarActionModeDefaultIcon), PorterDuff.Mode.MULTIPLY));
         forwardButton.setCompoundDrawablesWithIntrinsicBounds(image, null, null, null);
-        forwardButton.setOnClickListener(v -> openForward());
+        forwardButton.setOnClickListener(v -> openForward(true));
+        forwardButton.setVisibility(View.VISIBLE);
+        forwardButton.setAlpha(isNoForwardsEnabled() ? 0.5f : 1.0f);
         bottomMessagesActionContainer.addView(forwardButton, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, Gravity.RIGHT | Gravity.TOP));
 
         contentView.addView(searchContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 51, Gravity.BOTTOM));
@@ -8697,7 +8707,44 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         contentView.removeView(videoPlayerContainer);
     }
 
-    private void openForward() {
+    private void openForward(boolean fromBottomForwardButton) {
+        if (isNoForwardsEnabled()) {
+            if (fromBottomForwardButton) {
+                if (noForwardsHintViewBottom == null) {
+                    SizeNotifierFrameLayout frameLayout = (SizeNotifierFrameLayout) fragmentView;
+                    int index = frameLayout.indexOfChild(chatActivityEnterView);
+                    if (index == -1) {
+                        return;
+                    }
+                    noForwardsHintViewBottom = new HintView(frameLayout.getContext(), HintView.TYPE_DISABLED_BUTTON, false);
+                    noForwardsHintViewBottom.setAlpha(0.0f);
+                    noForwardsHintViewBottom.setVisibility(View.INVISIBLE);
+                    String noForwardsTooltipText = ChatObject.isChannelAndNotMegaGroup(currentChat) ? LocaleController.getString("RestrictedChannelForwardsHelp", R.string.RestrictedChannelForwardsHelp) : LocaleController.getString("RestrictedGroupForwardsHelp", R.string.RestrictedGroupForwardsHelp);
+                    noForwardsHintViewBottom.setText(noForwardsTooltipText.replace('\n', ' ').replace(".", ""));
+                    frameLayout.addView(noForwardsHintViewBottom, index + 1, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.BOTTOM, 19, 0, 19, 0));
+                }
+                noForwardsHintViewBottom.showForView(forwardButton, true);
+            }
+            else {
+                if (noForwardsHintViewTop == null) {
+                    SizeNotifierFrameLayout frameLayout = (SizeNotifierFrameLayout) fragmentView;
+                    int index = frameLayout.indexOfChild(chatActivityEnterView);
+                    if (index == -1) {
+                        return;
+                    }
+                    noForwardsHintViewTop = new HintView(getParentActivity(), HintView.TYPE_DISABLED_BUTTON, true);
+                    noForwardsHintViewTop.setAlpha(0.0f);
+                    noForwardsHintViewTop.setVisibility(View.INVISIBLE);
+                    String noForwardsTooltipText = ChatObject.isChannelAndNotMegaGroup(currentChat) ? LocaleController.getString("RestrictedChannelForwardsHelp", R.string.RestrictedChannelForwardsHelp) : LocaleController.getString("RestrictedGroupForwardsHelp", R.string.RestrictedGroupForwardsHelp);
+                    noForwardsHintViewTop.setText(noForwardsTooltipText.replace('\n', ' ').replace(".", ""));
+                    frameLayout.addView(noForwardsHintViewTop, index + 1, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 19, 0, 19, 0));
+                }
+                ActionBarMenuItem forwardItem = actionBar.createActionMode().getItem(forward);
+                noForwardsHintViewTop.setExtraTranslationY(AndroidUtilities.statusBarHeight);
+                noForwardsHintViewTop.showForView(forwardItem, true);
+            }
+            return;
+        }
         int hasPoll = 0;
         boolean hasInvoice = false;
         for (int a = 0; a < 2; a++) {
@@ -12363,6 +12410,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     forwardButtonAnimation = new AnimatorSet();
                     ArrayList<Animator> animators = new ArrayList<>();
                     if (forwardItem != null) {
+                        forwardItem.setVisibility(View.VISIBLE);
                         forwardItem.setEnabled(cantForwardMessagesCount == 0);
                         animators.add(ObjectAnimator.ofFloat(forwardItem, View.ALPHA, cantForwardMessagesCount == 0 ? 1.0f : 0.5f));
                     }
@@ -12381,12 +12429,13 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     forwardButtonAnimation.start();
                 } else {
                     if (forwardItem != null) {
+                        forwardItem.setVisibility(View.VISIBLE);
                         forwardItem.setEnabled(cantForwardMessagesCount == 0);
-                        forwardItem.setAlpha(cantForwardMessagesCount == 0 ? 1.0f : 0.5f);
+                        forwardItem.setAlpha(cantForwardMessagesCount == 0 && !isNoForwardsEnabled() ? 1.0f : 0.5f);
                     }
                     if (forwardButton != null) {
                         forwardButton.setEnabled(cantForwardMessagesCount == 0);
-                        forwardButton.setAlpha(cantForwardMessagesCount == 0 ? 1.0f : 0.5f);
+                        forwardButton.setAlpha(cantForwardMessagesCount == 0 && !isNoForwardsEnabled() ? 1.0f : 0.5f);
                     }
                 }
                 if (saveItem != null) {
@@ -14515,6 +14564,9 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         } else if (id == NotificationCenter.chatInfoDidLoad) {
             TLRPC.ChatFull chatFull = (TLRPC.ChatFull) args[0];
             if (currentChat != null && chatFull.id == currentChat.id) {
+                if (forwardButton != null) {
+                    forwardButton.setAlpha(cantForwardMessagesCount == 0 && !isNoForwardsEnabled() ? 1.0f : 0.5f);
+                }
                 if (chatFull instanceof TLRPC.TL_channelFull) {
                     if (currentChat.megagroup) {
                         int lastDate = 0;
