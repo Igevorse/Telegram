@@ -474,8 +474,8 @@ public class ChatEditTypeActivity extends BaseFragment implements NotificationCe
 
     private void processDone() {
         if (restrictForwards != currentChat.noforwards) {
-            currentChat.noforwards = restrictForwards;
             getMessagesController().toogleNoForwards(chatId, restrictForwards, this);
+            currentChat.noforwards = restrictForwards;
         }
         if (trySetUsername()) {
             finishFragment();
@@ -510,8 +510,10 @@ public class ChatEditTypeActivity extends BaseFragment implements NotificationCe
                 });
                 return false;
             } else {
-                getMessagesController().updateChannelUserName(chatId, newUserName);
+                Boolean noForwards = !isPrivate ? false : restrictForwards;
+                getMessagesController().updateChannelUserName(chatId, newUserName, noForwards);
                 currentChat.username = newUserName;
+                currentChat.noforwards = !isPrivate ? false : restrictForwards;
             }
         }
         return true;

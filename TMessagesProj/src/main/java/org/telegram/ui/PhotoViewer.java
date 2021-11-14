@@ -986,7 +986,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
 
     private boolean isNoForwardsEnabled() {
         TLRPC.Chat currentChat = MessagesController.getInstance(currentAccount).getChat(-currentDialogId);
-        return currentChat != null && currentChat.noforwards;
+        return currentChat != null && TextUtils.isEmpty(currentChat.username) && currentChat.noforwards;
     }
 
     private ActionBarPopupWindow sendPopupWindow;

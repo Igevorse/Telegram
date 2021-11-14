@@ -949,7 +949,7 @@ public class ChatEditActivity extends BaseFragment implements ImageUpdater.Image
             descriptionTextView.setText(info.about);
         }
         setAvatar();
-        updateFields(true);
+        updateFields(false);
 
         return fragmentView;
     }
@@ -1004,7 +1004,7 @@ public class ChatEditActivity extends BaseFragment implements ImageUpdater.Image
                 boolean infoWasEmpty = info == null;
                 info = chatFull;
                 historyHidden = !ChatObject.isChannel(currentChat) || info.hidden_prehistory;
-                updateFields(false);
+                updateFields(true);
                 if (infoWasEmpty) {
                     loadLinksCount();
                 }
@@ -1013,6 +1013,9 @@ public class ChatEditActivity extends BaseFragment implements ImageUpdater.Image
             int mask = (Integer) args[0];
             if ((mask & MessagesController.UPDATE_MASK_AVATAR) != 0) {
                 setAvatar();
+            }
+            if ((mask & MessagesController.UPDATE_MASK_CHAT) != 0) {
+                updateFields(true);
             }
         }
     }

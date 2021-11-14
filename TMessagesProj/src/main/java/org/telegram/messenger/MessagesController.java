@@ -9175,7 +9175,7 @@ public class MessagesController extends BaseController implements NotificationCe
         }, ConnectionsManager.RequestFlagInvokeAfter);
     }
 
-    public void updateChannelUserName(long chatId, String userName) {
+    public void updateChannelUserName(long chatId, String userName, Boolean noForwards) {
         TLRPC.TL_channels_updateUsername req = new TLRPC.TL_channels_updateUsername();
         req.channel = getInputChannel(chatId);
         req.username = userName;
@@ -9189,11 +9189,16 @@ public class MessagesController extends BaseController implements NotificationCe
                         chat.flags &= ~TLRPC.CHAT_FLAG_IS_PUBLIC;
                     }
                     chat.username = userName;
+                    chat.noforwards = noForwards;
                     ArrayList<TLRPC.Chat> arrayList = new ArrayList<>();
                     arrayList.add(chat);
                     getMessagesStorage().putUsersAndChats(null, arrayList, true, true);
                     getNotificationCenter().postNotificationName(NotificationCenter.updateInterfaces, UPDATE_MASK_CHAT);
                 });
+                // Change Public to Private restricted
+                if (noForwards != null) {
+                    toogleNoForwards(chatId, noForwards, null);
+                }
             }
         }, ConnectionsManager.RequestFlagInvokeAfter);
     }

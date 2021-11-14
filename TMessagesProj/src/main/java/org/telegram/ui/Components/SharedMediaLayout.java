@@ -1432,7 +1432,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
             forwardItem.setContentDescription(LocaleController.getString("Forward", R.string.Forward));
             forwardItem.setDuplicateParentStateEnabled(false);
             TLRPC.Chat currentChat = profileActivity.getMessagesController().getChat(-dialog_id);
-            boolean isNoForwardsEnabled = currentChat != null && currentChat.noforwards;
+            boolean isNoForwardsEnabled = currentChat != null && TextUtils.isEmpty(currentChat.username) && currentChat.noforwards;
             final int forward_click_id = isNoForwardsEnabled ? forward_disabled : forward;
             forwardItem.setAlpha(isNoForwardsEnabled ? 0.5f : 1.0f);
 

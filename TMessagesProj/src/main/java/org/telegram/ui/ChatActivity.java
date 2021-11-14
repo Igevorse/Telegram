@@ -827,7 +827,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     ForwardingPreviewView forwardingPreviewView;
 
     private boolean isNoForwardsEnabled() {
-        return currentChat != null && currentChat.noforwards;
+        return currentChat != null && TextUtils.isEmpty(currentChat.username) && currentChat.noforwards;
     }
 
     private class UnreadCounterTextView extends View {
@@ -14145,7 +14145,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             if ((updateMask & MessagesController.UPDATE_MASK_USER_PRINT) != 0) {
                 updateSubtitle = true;
             }
-            if ((updateMask & MessagesController.UPDATE_MASK_CHAT) != 0 && currentChat != null) {
+            if ((updateMask & MessagesController.UPDATE_MASK_CHAT) != 0) {
                 TLRPC.Chat chat = getMessagesController().getChat(currentChat.id);
                 if (chat == null) {
                     return;
