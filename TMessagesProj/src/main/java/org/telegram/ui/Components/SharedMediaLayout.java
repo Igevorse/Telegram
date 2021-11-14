@@ -1431,7 +1431,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
             forwardItem.setIcon(R.drawable.msg_forward);
             forwardItem.setContentDescription(LocaleController.getString("Forward", R.string.Forward));
             forwardItem.setDuplicateParentStateEnabled(false);
-            TLRPC.Chat currentChat = delegate.getCurrentChat();
+            TLRPC.Chat currentChat = profileActivity.getMessagesController().getChat(-dialog_id);
             boolean isNoForwardsEnabled = currentChat != null && currentChat.noforwards;
             final int forward_click_id = isNoForwardsEnabled ? forward_disabled : forward;
             forwardItem.setAlpha(isNoForwardsEnabled ? 0.5f : 1.0f);
@@ -3119,10 +3119,10 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
         }
         else if (id == forward_disabled) {
             if (noForwardsHintView == null) {
-                noForwardsHintView = new HintView(getContext(), HintView.TYPE_DISABLED_BUTTON, false);
+                noForwardsHintView = new HintView(profileActivity.getParentActivity(), HintView.TYPE_DISABLED_BUTTON, false);
                 noForwardsHintView.setAlpha(0.0f);
                 noForwardsHintView.setVisibility(View.INVISIBLE);
-                TLRPC.Chat currentChat = delegate.getCurrentChat();
+                TLRPC.Chat currentChat = profileActivity.getMessagesController().getChat(-dialog_id);
                 String noForwardsTooltipText = ChatObject.isChannelAndNotMegaGroup(currentChat) ? LocaleController.getString("RestrictedChannelForwardsHelp", R.string.RestrictedChannelForwardsHelp) : LocaleController.getString("RestrictedGroupForwardsHelp", R.string.RestrictedGroupForwardsHelp);
                 noForwardsHintView.setText(noForwardsTooltipText.replace('\n', ' ').replace(".", ""));
                 profileActivity.getLayoutContainer().addView(noForwardsHintView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 19, 0, 19, 0));
