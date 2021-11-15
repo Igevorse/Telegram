@@ -698,6 +698,12 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     private TLRPC.PhotoSize currentReplyPhoto;
 
     private int drawSideButton;
+    public void updateDrawSideButton(MessageObject messageObject) {
+        drawSideButton = !isRepliesChat && checkNeedDrawShareButton(messageObject) && (currentPosition == null || currentPosition.last) ? 1 : 0;
+        if (isPinnedChat || drawSideButton == 1 && messageObject.messageOwner.fwd_from != null && !messageObject.isOutOwner() && messageObject.messageOwner.fwd_from.saved_from_peer != null && messageObject.getDialogId() == UserConfig.getInstance(currentAccount).getClientUserId()) {
+            drawSideButton = 2;
+        }
+    }
     private boolean sideButtonPressed;
     private float sideStartX;
     private float sideStartY;
@@ -740,6 +746,20 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     private TLRPC.Chat currentChat;
     private TLRPC.FileLocation currentPhoto;
     private String currentNameString;
+
+    public void setCurrentChat(TLRPC.Chat chat) {
+        currentChat = chat;
+    }
+
+    private boolean isNoForwardsEnabled() {
+        if (currentChat == null) {
+            updateCurrentUserAndChat();
+            if (currentChat == null) {
+                currentChat = MessagesController.getInstance(currentAccount).getChat(getMessageObject().getChatId());
+            }
+        }
+        return currentChat != null && TextUtils.isEmpty(currentChat.username) && currentChat.noforwards;
+    }
 
     private TLRPC.User currentForwardUser;
     private TLRPC.User currentViaBotUser;
@@ -3169,10 +3189,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             drawVideoSize = false;
             canStreamVideo = false;
             animatingNoSound = 0;
-            drawSideButton = !isRepliesChat && checkNeedDrawShareButton(messageObject) && (currentPosition == null || currentPosition.last) ? 1 : 0;
-            if (isPinnedChat || drawSideButton == 1 && messageObject.messageOwner.fwd_from != null && !messageObject.isOutOwner() && messageObject.messageOwner.fwd_from.saved_from_peer != null && messageObject.getDialogId() == UserConfig.getInstance(currentAccount).getClientUserId()) {
-                drawSideButton = 2;
-            }
+            updateDrawSideButton(messageObject);
             replyNameLayout = null;
             adminLayout = null;
             checkOnlyButtonPressed = false;
@@ -9599,7 +9616,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     }
 
     private boolean checkNeedDrawShareButton(MessageObject messageObject) {
-        if (currentMessageObject.deleted || currentMessageObject.isSponsored()) {
+        if (currentMessageObject.deleted || currentMessageObject.isSponsored() || isNoForwardsEnabled()) {
             return false;
         }
         if (currentPosition != null) {
@@ -10091,6 +10108,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             }
         }
 
+        if (currentChat != null && ChatObject.isChannelAndNotMegaGroup(currentChat) && currentChat.noforwards) {
+            drawSideButton = 0;
+        }
         requestLayout();
     }
 
@@ -10224,6 +10244,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         if (!wasLayout) {
             onLayout(false, getLeft(), getTop(), getRight(), getBottom());
         }
+        updateDrawSideButton(getMessageObject());
 
         if (currentMessageObject.isOutOwner()) {
             Theme.chat_msgTextPaint.setColor(getThemedColor(Theme.key_chat_messageTextOut));

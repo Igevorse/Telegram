@@ -14598,6 +14598,19 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                     forwardItem.setAlpha(cantForwardMessagesCount == 0 && !isNoForwardsEnabled() ? 1.0f : 0.5f);
                 }
 
+                if (chatListView != null) {
+                    int count = chatListView.getChildCount();
+                    for (int a = 0; a < count; a++) {
+                        View view = chatListView.getChildAt(a);
+                        if (view instanceof ChatMessageCell) {
+                            ChatMessageCell cell = (ChatMessageCell) view;
+                            if (currentChat != null) {
+                                cell.setCurrentChat(currentChat);
+                            }
+                        }
+                    }
+                }
+
                 if (chatFull instanceof TLRPC.TL_channelFull) {
                     if (currentChat.megagroup) {
                         int lastDate = 0;

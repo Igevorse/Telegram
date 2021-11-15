@@ -1970,6 +1970,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                     final LongSparseArray<TLRPC.Message> messagesByRandomIdsFinal = messagesByRandomIds;
                     boolean scheduledOnline = scheduleDate == 0x7FFFFFFE;
                     getConnectionsManager().sendRequest(req, (response, error) -> {
+                        // TODO: igevorse: handle 400 CHAT_FORWARDS_RESTRICTED
                         if (error == null) {
                             SparseLongArray newMessagesByIds = new SparseLongArray();
                             TLRPC.Updates updates = (TLRPC.Updates) response;
