@@ -124,7 +124,6 @@ public class AlertsCreator {
         if (error.code == 406 || error.text == null) {
             return null;
         }
-        // TODO: igevorse: handle 400 CHAT_FORWARDS_RESTRICTED
         if (request instanceof TLRPC.TL_messages_initHistoryImport || request instanceof TLRPC.TL_messages_checkHistoryImportPeer || request instanceof TLRPC.TL_messages_checkHistoryImport || request instanceof TLRPC.TL_messages_startHistoryImport || request instanceof TLRPC.TL_messages_toggleNoForwards) {
             TLRPC.InputPeer peer;
             if (request instanceof TLRPC.TL_messages_initHistoryImport) {
@@ -234,6 +233,17 @@ public class AlertsCreator {
                     break;
                 case "SCHEDULE_TOO_MUCH":
                     showSimpleToast(fragment, LocaleController.getString("MessageScheduledLimitReached", R.string.MessageScheduledLimitReached));
+                    break;
+                case "CHAT_FORWARDS_RESTRICTED":
+                    if (request instanceof TLRPC.TL_messages_forwardMessages) {
+                        long chatId = ((TLRPC.TL_messages_forwardMessages) request).from_peer.channel_id;
+                        String message = LocaleController.getString("RestrictedGroupForwardsHelp", R.string.RestrictedGroupForwardsHelp);
+                        if (ChatObject.isChannelAndNotMegaGroup(chatId, currentAccount)) {
+                            message = LocaleController.getString("RestrictedChannelForwardsHelp", R.string.RestrictedChannelForwardsHelp);
+                        }
+                        showSimpleToast(fragment, message);
+                        MessagesController.getInstance(currentAccount).loadFullChat(chatId, ConnectionsManager.generateClassGuid(), true);
+                    }
                     break;
             }
         } else if (request instanceof TLRPC.TL_messages_importChatInvite) {
