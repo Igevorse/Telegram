@@ -2727,6 +2727,8 @@
     <string name="PleaseStreamDownload">Please wait for the video to be fully downloaded.</string>
     <string name="VideoDoesNotSupportStreaming">This video is not optimized for streaming. You may need to download it in full to play it.</string>
     <string name="CantPlayVideo">App was unable to play this video. Try to play it with external player?</string>
+    <string name="CantPlayVideoAndGroupForwardsRestricted">App was unable to play this video. Due to group forwarding restrictions, also unable to open it with external player.</string>
+    <string name="CantPlayVideoAndChannelForwardsRestricted">App was unable to play this video. Due to channel forwarding restrictions, also unable to open it with external player.</string>
     <string name="NoRecentSearches">No recent searches</string>
     <string name="ImagesTab2">Images</string>
     <string name="GifsTab2">GIFs</string>
